@@ -1,10 +1,8 @@
 #!/usr/bin/env/ python
 # -*- coding: utf-8 -*-
-import os
 import torch
 import numpy as np
 import torch.optim as optim
-from torch.autograd import Variable
 import logging
 import numba
 from tqdm import tqdm
