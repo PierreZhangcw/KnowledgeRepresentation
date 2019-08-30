@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-  
 import torch
 import torch.nn as nn
-from .Model import Model
 
 class transE(nn.Module):
     def __init__(self,config):
