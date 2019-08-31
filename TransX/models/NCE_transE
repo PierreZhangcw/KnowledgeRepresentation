@@ -1,0 +1,49 @@
+#!/usr/bin/env/ python
+# -*- coding: utf-8 -*-
+import torch
+import torch.nn as nn
+from .Model import Model
+
+class NCEtransE(Model):
+    def __init__(self,config):
+        super(NCEtransE,self).__init__(config)
+        self.ent_embeddings = nn.Embedding(self.config.ent_num,self.config.hidden_size)
+        self.rel_embeddings = nn.Embedding(self.config.rel_num,self.config.hidden_size)
+        self.rel_sums = torch.ones()
+        # self.criterion = nn.MarginRankingLoss(self.config.margin,reduction='sum')
+        self.init_weights()
+
+    def init_weights(self):
+        nn.init.xavier_uniform_(self.ent_embeddings.weight.data)
+        nn.init.xavier_uniform_(self.rel_embeddings.weight.data)
+
+    def _calc(self, h, t, r, c):
+        score = c-1*torch.norm(h + r - t, self.config.p_norm, -1)
+        score_g = torch.log(score) - c
+        score_h = torch.sigmoid(score_g)
+        return score_h.view(score.shape[0])
+
+    def loss(self, p_score, n_score):
+        if self.config.use_gpu:
+            y = torch.Tensor([1]).cuda()
+        else:
+            y = torch.Tensor([1])
+        return -torch.log(p_score).sum()-torch.log(y-n_score).sum()
+
+    def forward(self):
+        h = self.ent_embeddings(self.batch_h)
+        t = self.ent_embeddings(self.batch_t)
+        r = self.rel_embeddings(self.batch_r)
+        c = self.rel_sums(self.batch_r)
+        score = self._calc(h, t, r, c)
+        p_score = self.get_positive_score(score)
+        n_score = self.get_negative_score(score)
+        return self.loss(p_score,n_score)
+
+    def predict(self):
+        h = self.ent_embeddings(self.batch_h)
+        t = self.ent_embeddings(self.batch_t)
+        r = self.rel_embeddings(self.batch_r)
+        c = self.rel_sums(self.batch_r)
+        score = self._calc(h, t, r, c)
+        return score.cpu().data.numpy()
