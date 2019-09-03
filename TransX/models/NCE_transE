@@ -14,12 +14,11 @@ class NCEtransE(nn.Module):
         self.batch_h = None
         self.batch_t = None
         self.batch_r = None
-        self.batch_y = None
 
         self.ent_embeddings = nn.Embedding(self.config.ent_num,self.config.hidden_size)
         self.rel_embeddings = nn.Embedding(self.config.rel_num,self.config.hidden_size)
         self.rel_sums = torch.ones()
-        # self.criterion = nn.MarginRankingLoss(self.config.margin,reduction='sum')
+        
         self.init_weights()
 
     def init_weights(self):
