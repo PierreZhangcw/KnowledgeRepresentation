@@ -14,7 +14,6 @@ class transE(nn.Module):
         self.batch_h = None
         self.batch_t = None
         self.batch_r = None
-        self.batch_y = None
         
         # embedding of entity and relation
         self.ent_embeddings = nn.Embedding(self.config.ent_num,self.config.hidden_size)
