@@ -1,12 +1,21 @@
 #!/usr/bin/env/ python
 # -*- coding: utf-8 -*-
+# @date: 2019/8/5 13:44
+# @author: zhangcw
+# @content: using NCE(Noise-Constrastive Estimation) in transE model
+
 import torch
 import torch.nn as nn
-from .Model import Model
 
-class NCEtransE(Model):
+class NCEtransE(nn.Module):
     def __init__(self,config):
-        super(NCEtransE,self).__init__(config)
+        super(NCEtransE,self).__init__()
+        self.config = config
+        self.batch_h = None
+        self.batch_t = None
+        self.batch_r = None
+        self.batch_y = None
+
         self.ent_embeddings = nn.Embedding(self.config.ent_num,self.config.hidden_size)
         self.rel_embeddings = nn.Embedding(self.config.rel_num,self.config.hidden_size)
         self.rel_sums = torch.ones()
@@ -16,6 +25,17 @@ class NCEtransE(Model):
     def init_weights(self):
         nn.init.xavier_uniform_(self.ent_embeddings.weight.data)
         nn.init.xavier_uniform_(self.rel_embeddings.weight.data)
+
+    def get_positive_score(self, score):
+        # score of positive triples
+        return score[0:self.config.batch_size]
+
+    def get_negative_score(self, score):
+        # score of negative triples
+        negative_score = score[self.config.batch_size:self.config.batch_seq_size]
+        negative_score = negative_score.view(-1, self.config.batch_size)
+        negative_score = torch.mean(negative_score, 0)
+        return negative_score
 
     def _calc(self, h, t, r, c):
         score = c-1*torch.norm(h + r - t, self.config.p_norm, -1)

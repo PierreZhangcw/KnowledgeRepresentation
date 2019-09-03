@@ -1,5 +1,9 @@
 #!/usr/bin/env/ python
-# -*- coding: utf-8 -*-  
+# -*- coding: utf-8 -*-
+# @date: 2019/8/2 13:44
+# @author: zhangcw
+# @content: transE model class
+
 import torch
 import torch.nn as nn
 

@@ -1,5 +1,9 @@
 #!/usr/bin/env/ python
 # -*- coding: utf-8 -*-
+# @date: 2019/8/5 13:44
+# @author: zhangcw
+# @content: configuration class for transX model
+
 import torch
 import numpy as np
 import torch.optim as optim
